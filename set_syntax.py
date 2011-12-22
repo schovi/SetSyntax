@@ -8,7 +8,7 @@ import sublime_plugin
 class SetSyntaxListener(sublime_plugin.EventListener):
     def on_load(self, view):
         filename = view.file_name()
-        
+
         map = view.settings().get('set_syntax_map')
 
         if view.is_scratch() or not filename or not map:
@@ -16,9 +16,10 @@ class SetSyntaxListener(sublime_plugin.EventListener):
 
         name = os.path.basename(filename)
 
-
         matched_syntax = None;
-        for regular_string, syntax in map:
+
+        for regular_string in map:
+            syntax = map[regular_string]
             if re.match(re.compile(regular_string, re.IGNORECASE), name):
                 matched_syntax = syntax
                 break
