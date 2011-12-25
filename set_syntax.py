@@ -17,9 +17,8 @@ class SetSyntaxListener(sublime_plugin.EventListener):
         name = os.path.basename(filename)
 
         if name in map:
-            self.set_syntax(view, name, matched_syntax)
+            self.set_syntax(view, name, map[name])
         else:
-
             # Check for regular syntax
             matched_syntax = None;
             for regular_string in map:
