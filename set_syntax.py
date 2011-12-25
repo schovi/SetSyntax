@@ -16,32 +16,36 @@ class SetSyntaxListener(sublime_plugin.EventListener):
 
         name = os.path.basename(filename)
 
-        matched_syntax = None;
-
-        for regular_string in map:
-            syntax = map[regular_string]
-            if re.match(re.compile(regular_string, re.IGNORECASE), name):
-                matched_syntax = syntax
-                break
-
-        if matched_syntax:
+        if name in map:
             self.set_syntax(view, name, matched_syntax)
         else:
-            # Still haven't found syntax, check shebang line
-            shebang = view.substr(view.line(0))
 
-            if shebang.startswith('#!'):
-                m = re.match(r'#![ ]*(?:/usr)?/bin/env[ ]+(\w+)', shebang)
+            # Check for regular syntax
+            matched_syntax = None;
+            for regular_string in map:
+                if regular_string[0] == "/" and regular_string[-1] == "/" and re.match(re.compile(regular_string[1:][:-1], re.IGNORECASE), name):
+                    matched_syntax = map[regular_string]
+                    break
 
-                if m and m.group(1):
-                    syntax = m.group(1)
-                else:
-                    syntax = os.path.basename(shebang)
+            if matched_syntax:
+                self.set_syntax(view, name, matched_syntax)
+            else:
 
-                syntax = '#!' + syntax
+                # Still haven't found syntax, check shebang line
+                shebang = view.substr(view.line(0))
 
-                if syntax in map:
-                    self.set_syntax(view, syntax, map[syntax])
+                if shebang.startswith('#!'):
+                    m = re.match(r'#![ ]*(?:/usr)?/bin/env[ ]+(\w+)', shebang)
+
+                    if m and m.group(1):
+                        syntax = m.group(1)
+                    else:
+                        syntax = os.path.basename(shebang)
+
+                    syntax = '#!' + syntax
+
+                    if syntax in map:
+                        self.set_syntax(view, syntax, map[syntax])
 
     def set_syntax(self, view, name, syntax):
         packages_dir = os.path.dirname(sublime.packages_path())
